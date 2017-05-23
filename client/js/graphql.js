@@ -55,6 +55,7 @@ var getAllArticles = `query getAllArticles {
                         edges {
                             node {
                                 id
+                                name
                             }
                         }
                     }
@@ -65,24 +66,26 @@ var getAllArticles = `query getAllArticles {
 }`;
 
 $.ajax({
-    type: 'POST',
-    url: 'https://us-west-2.api.scaphold.io/graphql/sct-course',
+    type: "POST",
+    url: "https://us-west-2.api.scaphold.io/graphql/sct-course",
     data: JSON.stringify({
-        'operationName': 'getAllArticles',
-        'query': getAllArticles,
-        'variables': {}
+        query: getAllArticles
     }),
+    contentType: 'application/json',
     success: function(response) {
+        console.log(response);
+        let articles = [];
         if (response.hasOwnProperty('data')) {
-            let articles = response.data.viewer.allArticles.edges;
-            for (var article of articles) {
-                console.log(article.node.title);
+            let articleEdges = response.data.viewer.allArticles.edges;
+            for (var article of articleEdges) {
+                articles.push(article.node);
             }
         }
-        console.log(response);
-    },
-    contentType: 'application/json'
+        
+        $('#article-1').find('h1').html(articles[0].title);
+        $('#article-1').find('article').html(articles[0].content);
+        
+        console.log('HERE IS THE ARTICLES ARRAY');
+        console.log(articles);
+    }
 });
-
-var article = 'lsdjflsjflksdjflksdjflsdjfsd'
-article.substr(0, 500) + '...'
