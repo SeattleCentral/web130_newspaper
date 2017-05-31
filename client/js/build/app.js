@@ -17218,6 +17218,42 @@ const getAllArticles = `
     }`;
 
 // Campus category articles
+const getCampusArticles = `
+    query getCampusArticles($where: ArticleWhereArgs) {
+        viewer {
+            allArticles(where: $where) {
+                edges {
+                    node {
+                        id
+                        title
+                        content
+                        category
+                        author {
+                            edges {
+                                node {
+                                    id
+                                    name
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }`;
+
+const MAX_ARTICLES = 5;
+
+let displayArticles = (articles) => {
+    let numberToDisplay = Math.min(articles.length, MAX_ARTICLES),
+        i;
+    for (i = 1; i < numberToDisplay + 1; i++) {
+        let article = articles[i],
+            $elem = $('#article-'+i);
+        $elem.find('h1, h2').html(article.title);
+        $elem.find('article').html(article.content);
+    }
+};
 
 if (js_page == 'home_page') {
     $.ajax({
@@ -17228,7 +17264,6 @@ if (js_page == 'home_page') {
         }),
         contentType: 'application/json',
         success: function(response) {
-            console.log(response);
             let articles = [];
             if (response.hasOwnProperty('data')) {
                 let articleEdges = response.data.viewer.allArticles.edges;
@@ -17237,15 +17272,96 @@ if (js_page == 'home_page') {
                 }
             }
             
-            $('#article-1').find('h1').html(articles[0].title);
-            $('#article-1').find('article').html(articles[0].content);
-            
-            console.log('HERE IS THE ARTICLES ARRAY');
-            console.log(articles);
+            displayArticles(articles);
         }
     });
 }
 
+if (js_page == 'campus_page') {
+    let campusFilter = {
+        "where": {
+            "category": {
+                "eq": "Campus"
+            }
+        }
+    };
+    $.ajax({
+        type: "POST",
+        url: "https://us-west-2.api.scaphold.io/graphql/sct-course",
+        data: JSON.stringify({
+            query: getCampusArticles,
+            variables: campusFilter
+        }),
+        contentType: 'application/json',
+        success: function(response) {
+            let articles = [];
+            if (response.hasOwnProperty('data')) {
+                let articleEdges = response.data.viewer.allArticles.edges;
+                for (var article of articleEdges) {
+                    articles.push(article.node);
+                }
+            }
+            
+            displayArticles(articles);
+        }
+    });
+}
+
+// Login query
+const loginUser = `
+    mutation loginUserQuery($input: LoginUserInput!) {
+        loginUser(input: $input) {
+            token
+            user {
+                id
+                username
+                name
+            }
+        }
+    }`;
+
 // Test cookies code.
-Cookies.set('bob', 'is your uncle');
-console.log("Bob's" + Cookies.get('bob'));
+Cookies.set('test', 'cookies work');
+let loginData = (username, password) => {
+    return {
+        "input": {
+            "username": username,
+            "password": password
+        }
+    };
+};
+
+$('#login-button').on('click', (event) => {
+    // Don't actually submit form
+    event.preventDefault();
+
+    let username = $('input[name="username"]').val(),
+        password = $('input[name="password"]').val(),
+        data = loginData(username, password);
+
+    $.ajax({
+        type: "POST",
+        url: "https://us-west-2.api.scaphold.io/graphql/sct-course",
+        data: JSON.stringify({
+            query: loginUser,
+            variables: data
+        }),
+        contentType: 'application/json',
+        success: function(response) {
+            if (response.hasOwnProperty('errors')) {
+                alert(response.errors[0].message);
+            } else if (response.hasOwnProperty('data')) {
+                let loginUser$$1 = response.data.loginUser,
+                    token = loginUser$$1.token,
+                    user = loginUser$$1.user;
+                Cookies.set('userID', user.id);
+                Cookies.set('userName', user.name);
+                Cookies.set('token', token);
+                console.log('userID - ' + user.id);
+                console.log('userName - ' + user.name);
+                console.log('token - ' + token);
+
+            }
+        }
+    });
+});

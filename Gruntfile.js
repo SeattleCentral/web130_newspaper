@@ -13,7 +13,7 @@ let babel = require('rollup-plugin-babel'),
         'node_modules/jquery/dist/jquery.js',
         'node_modules/babel-polyfill/dist/polyfill.js',
         'node_modules/js-cookie/src/js.cookie.js',
-        'client/js/build/app.js'
+        'client/js/build/app.js' // Rolled up source file.
     ],
     sassIncludes = [];
 
@@ -22,7 +22,9 @@ module.exports = (grunt) => {
         clean: {
             js: 'client/js/build/*',
             all: [
-                'client/js/build/*'
+                'client/js/build/*',
+                'client/css/app.css',
+                'client/css/app.min.css'
             ]
         },
         jshint: {
@@ -115,11 +117,17 @@ module.exports = (grunt) => {
             },
             js: {
                 tasks: ['dev'],
-                files: jsMain
+                files: [
+                    'client/js/*.js',
+                    'client/js/**/*.js',
+                    '!client/js/build/*.js'
+                ]
             },
             sass: {
                 tasks: ['sass:dev'],
-                files: []
+                files: [
+                    'client/sass/*'
+                ]
             }
         },
         uglify: {

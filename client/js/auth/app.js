@@ -1,8 +1,3 @@
-import '../articles/home';
-import '../articles/campus';
-
-// Test cookies code.
-Cookies.set('test', 'cookies work');
 import { loginUser } from '../auth/queries';
 
 let loginData = (username, password) => {

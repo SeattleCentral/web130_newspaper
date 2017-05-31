@@ -24,10 +24,10 @@ export const getAllArticles = `
     }`;
 
 // Campus category articles
-export const getCampsArticles = `
-    query getAllArticles {
+export const getCampusArticles = `
+    query getCampusArticles($where: ArticleWhereArgs) {
         viewer {
-            allArticles{
+            allArticles(where: $where) {
                 edges {
                     node {
                         id

@@ -1,4 +1,5 @@
 import '../articles/home';
+import '../articles/campus';
 
 // Test cookies code.
-Cookies.set('bob', 'is your uncle');
+Cookies.set('test', 'cookies work');
