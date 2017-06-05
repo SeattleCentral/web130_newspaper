@@ -10,12 +10,8 @@ export const getAllArticles = `
                         content
                         category
                         author {
-                            edges {
-                                node {
-                                    id
-                                    name
-                                }
-                            }
+                            id
+                            name
                         }
                     }
                 }
@@ -35,14 +31,28 @@ export const getCampusArticles = `
                         content
                         category
                         author {
-                            edges {
-                                node {
-                                    id
-                                    name
-                                }
-                            }
+                            id
+                            name
                         }
                     }
+                }
+            }
+        }
+    }`;
+
+// Create new article
+export const createArticle = `
+    mutation createArticleQuery($input: CreateArticleInput!) {
+        createArticle(input: $input) {
+            changedArticle {
+                id
+                modifiedAt
+                title
+                content
+                category
+                author {
+                    id
+                    name
                 }
             }
         }

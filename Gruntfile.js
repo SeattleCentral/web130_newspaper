@@ -4,6 +4,11 @@
 let babel = require('rollup-plugin-babel'),
     commonjs = require('rollup-plugin-commonjs'),
     includePaths = require('rollup-plugin-includepaths'),
+    jsSrc = [
+        'client/js/*.js',
+        'client/js/**/*.js',
+        '!client/js/build/*.js'
+    ],
     jsMain = [
         // Main application files
         'client/js/**/app.js', 
@@ -32,7 +37,7 @@ module.exports = (grunt) => {
                 esversion: 6
             },
             all: {
-                src: jsMain
+                src: jsSrc
             }
         },
         concat: {
@@ -117,11 +122,7 @@ module.exports = (grunt) => {
             },
             js: {
                 tasks: ['dev'],
-                files: [
-                    'client/js/*.js',
-                    'client/js/**/*.js',
-                    '!client/js/build/*.js'
-                ]
+                files: jsSrc
             },
             sass: {
                 tasks: ['sass:dev'],
@@ -150,7 +151,6 @@ module.exports = (grunt) => {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-sass');
     grunt.loadNpmTasks('grunt-rollup');
-    grunt.loadNpmTasks('grunt-newer');
     grunt.registerTask('dev', 
         "Join and rollup all the ES6, but don't transpile.", 
         ['jshint:all', 'clean:js', 'concat:js', 'rollup:dev', 'concat:all']
@@ -158,8 +158,8 @@ module.exports = (grunt) => {
     grunt.registerTask('build',
         "Join, rollup, transpile, and uglify static JavaScript assets",
         ['jshint:all', 'clean:all', 'concat:js', 'rollup:build',  'concat:all',
-         'uglify:main']
+         'uglify:app', 'sass:prod']
     );
-    grunt.registerTask('code', ['dev', 'watch']);
+    grunt.registerTask('code', ['dev', 'sass:dev', 'watch']);
 };
 

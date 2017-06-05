@@ -17204,12 +17204,8 @@ const getAllArticles = `
                         content
                         category
                         author {
-                            edges {
-                                node {
-                                    id
-                                    name
-                                }
-                            }
+                            id
+                            name
                         }
                     }
                 }
@@ -17229,14 +17225,28 @@ const getCampusArticles = `
                         content
                         category
                         author {
-                            edges {
-                                node {
-                                    id
-                                    name
-                                }
-                            }
+                            id
+                            name
                         }
                     }
+                }
+            }
+        }
+    }`;
+
+// Create new article
+const createArticle = `
+    mutation createArticleQuery($input: CreateArticleInput!) {
+        createArticle(input: $input) {
+            changedArticle {
+                id
+                modifiedAt
+                title
+                content
+                category
+                author {
+                    id
+                    name
                 }
             }
         }
@@ -17307,6 +17317,53 @@ if (js_page == 'campus_page') {
     });
 }
 
+let createData = (title, category, content) => {
+    return {
+        "input": {
+            "authorId": Cookies.get('userId'),
+            "title": title,
+            "category": category,
+            "content": content
+        }
+    };
+};
+
+
+$('#create-button').on('click', (event) => {
+    // Don't actually submit form
+    event.preventDefault();
+
+    let title = $('input[name="title"]').val(),
+        category = $('[name="category"]').val(),
+        content = $('[name="content"]').val(),
+        data = createData(title, category, content);
+
+    $.ajax({
+        type: "POST",
+        url: "https://us-west-2.api.scaphold.io/graphql/sct-course",
+        data: JSON.stringify({
+            query: createArticle,
+            variables: data
+        }),
+        contentType: 'application/json',
+        headers: {
+            'Authorization': 'Bearer ' + Cookies.get('token')
+        },
+        success: function(response) {
+            if (response.hasOwnProperty('errors')) {
+                alert(response.errors[0].message);
+            } else if (response.hasOwnProperty('data')) {
+                console.log(response.data);
+            }
+        },
+        error: function(response) {
+            if (response.hasOwnProperty('errors')) {
+                alert(response.errors[0].message);
+            }
+        }
+    });
+});
+
 // Login query
 const loginUser = `
     mutation loginUserQuery($input: LoginUserInput!) {
@@ -17320,8 +17377,6 @@ const loginUser = `
         }
     }`;
 
-// Test cookies code.
-Cookies.set('test', 'cookies work');
 let loginData = (username, password) => {
     return {
         "input": {
@@ -17329,6 +17384,23 @@ let loginData = (username, password) => {
             "password": password
         }
     };
+};
+
+let processLogin = (user, token) => {
+    // Set session cookie
+    Cookies.set('userId', user.id);
+    Cookies.set('userName', user.name);
+    Cookies.set('token', token);
+    // For debugging purposes
+    console.log('userId - ' + user.id);
+    console.log('userName - ' + user.name);
+    console.log('token - ' + token);
+
+    window.location = createUrl();
+};
+
+let createUrl = () => {
+    return window.location.href.replace('/login.html', '/create.html');
 };
 
 $('#login-button').on('click', (event) => {
@@ -17354,14 +17426,11 @@ $('#login-button').on('click', (event) => {
                 let loginUser$$1 = response.data.loginUser,
                     token = loginUser$$1.token,
                     user = loginUser$$1.user;
-                Cookies.set('userID', user.id);
-                Cookies.set('userName', user.name);
-                Cookies.set('token', token);
-                console.log('userID - ' + user.id);
-                console.log('userName - ' + user.name);
-                console.log('token - ' + token);
-
+                processLogin(user, token);
             }
         }
     });
 });
+
+// Test cookies code.
+Cookies.set('test', 'cookies work');
