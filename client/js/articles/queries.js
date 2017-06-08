@@ -19,9 +19,9 @@ export const getAllArticles = `
         }
     }`;
 
-// Campus category articles
-export const getCampusArticles = `
-    query getCampusArticles($where: ArticleWhereArgs) {
+// Get category articles
+export const getCategoryArticles = `
+    query getCategoryArticles($where: ArticleWhereArgs) {
         viewer {
             allArticles(where: $where) {
                 edges {
@@ -30,6 +30,7 @@ export const getCampusArticles = `
                         title
                         content
                         category
+                        createdAt
                         author {
                             id
                             name

@@ -17193,73 +17193,22 @@ module.exports = _dereq_(23);
 }));
 
 // All articles
-const getAllArticles = `
-    query getAllArticles {
-        viewer {
-            allArticles{
-                edges {
-                    node {
-                        id
-                        title
-                        content
-                        category
-                        author {
-                            id
-                            name
-                        }
-                    }
-                }
-            }
-        }
-    }`;
+var getAllArticles = "\n    query getAllArticles {\n        viewer {\n            allArticles{\n                edges {\n                    node {\n                        id\n                        title\n                        content\n                        category\n                        author {\n                            id\n                            name\n                        }\n                    }\n                }\n            }\n        }\n    }";
 
-// Campus category articles
-const getCampusArticles = `
-    query getCampusArticles($where: ArticleWhereArgs) {
-        viewer {
-            allArticles(where: $where) {
-                edges {
-                    node {
-                        id
-                        title
-                        content
-                        category
-                        author {
-                            id
-                            name
-                        }
-                    }
-                }
-            }
-        }
-    }`;
+// Get category articles
+var getCategoryArticles = "\n    query getCategoryArticles($where: ArticleWhereArgs) {\n        viewer {\n            allArticles(where: $where) {\n                edges {\n                    node {\n                        id\n                        title\n                        content\n                        category\n                        createdAt\n                        author {\n                            id\n                            name\n                        }\n                    }\n                }\n            }\n        }\n    }";
 
 // Create new article
-const createArticle = `
-    mutation createArticleQuery($input: CreateArticleInput!) {
-        createArticle(input: $input) {
-            changedArticle {
-                id
-                modifiedAt
-                title
-                content
-                category
-                author {
-                    id
-                    name
-                }
-            }
-        }
-    }`;
+var createArticle = "\n    mutation createArticleQuery($input: CreateArticleInput!) {\n        createArticle(input: $input) {\n            changedArticle {\n                id\n                modifiedAt\n                title\n                content\n                category\n                author {\n                    id\n                    name\n                }\n            }\n        }\n    }";
 
-const MAX_ARTICLES = 5;
+var MAX_ARTICLES = 5;
 
-let displayArticles = (articles) => {
-    let numberToDisplay = Math.min(articles.length, MAX_ARTICLES),
-        i;
-    for (i = 1; i < numberToDisplay + 1; i++) {
-        let article = articles[i],
-            $elem = $('#article-'+i);
+var displayArticles = function displayArticles(articles) {
+    var numberToDisplay = Math.min(articles.length, MAX_ARTICLES),
+        i = void 0;
+    for (i = 0; i < numberToDisplay; i++) {
+        var article = articles[i],
+            $elem = $('#article-' + (i + 1));
         $elem.find('h1, h2').html(article.title);
         $elem.find('article').html(article.content);
     }
@@ -17273,51 +17222,95 @@ if (js_page == 'home_page') {
             query: getAllArticles
         }),
         contentType: 'application/json',
-        success: function(response) {
-            let articles = [];
+        success: function success(response) {
+            var articles = [];
             if (response.hasOwnProperty('data')) {
-                let articleEdges = response.data.viewer.allArticles.edges;
-                for (var article of articleEdges) {
-                    articles.push(article.node);
+                var articleEdges = response.data.viewer.allArticles.edges;
+                var _iteratorNormalCompletion = true;
+                var _didIteratorError = false;
+                var _iteratorError = undefined;
+
+                try {
+                    for (var _iterator = articleEdges[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                        var article = _step.value;
+
+                        articles.push(article.node);
+                    }
+                } catch (err) {
+                    _didIteratorError = true;
+                    _iteratorError = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion && _iterator.return) {
+                            _iterator.return();
+                        }
+                    } finally {
+                        if (_didIteratorError) {
+                            throw _iteratorError;
+                        }
+                    }
                 }
             }
-            
+
             displayArticles(articles);
         }
     });
 }
 
 if (js_page == 'campus_page') {
-    let campusFilter = {
+
+    var campusFilter = {
         "where": {
             "category": {
                 "eq": "Campus"
             }
         }
     };
+
     $.ajax({
         type: "POST",
         url: "https://us-west-2.api.scaphold.io/graphql/sct-course",
         data: JSON.stringify({
-            query: getCampusArticles,
+            query: getCategoryArticles,
             variables: campusFilter
         }),
         contentType: 'application/json',
-        success: function(response) {
-            let articles = [];
+        success: function success(response) {
+            var articles = [];
             if (response.hasOwnProperty('data')) {
-                let articleEdges = response.data.viewer.allArticles.edges;
-                for (var article of articleEdges) {
-                    articles.push(article.node);
+                var articleEdges = response.data.viewer.allArticles.edges;
+                var _iteratorNormalCompletion = true;
+                var _didIteratorError = false;
+                var _iteratorError = undefined;
+
+                try {
+                    for (var _iterator = articleEdges[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                        var article = _step.value;
+
+                        articles.push(article.node);
+                    }
+                } catch (err) {
+                    _didIteratorError = true;
+                    _iteratorError = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion && _iterator.return) {
+                            _iterator.return();
+                        }
+                    } finally {
+                        if (_didIteratorError) {
+                            throw _iteratorError;
+                        }
+                    }
                 }
             }
-            
+
             displayArticles(articles);
         }
     });
 }
 
-let createData = (title, category, content) => {
+var createData = function createData(title, category, content) {
     return {
         "input": {
             "authorId": Cookies.get('userId'),
@@ -17328,12 +17321,11 @@ let createData = (title, category, content) => {
     };
 };
 
-
-$('#create-button').on('click', (event) => {
+$('#create-button').on('click', function (event) {
     // Don't actually submit form
     event.preventDefault();
 
-    let title = $('input[name="title"]').val(),
+    var title = $('input[name="title"]').val(),
         category = $('[name="category"]').val(),
         content = $('[name="content"]').val(),
         data = createData(title, category, content);
@@ -17349,14 +17341,14 @@ $('#create-button').on('click', (event) => {
         headers: {
             'Authorization': 'Bearer ' + Cookies.get('token')
         },
-        success: function(response) {
+        success: function success(response) {
             if (response.hasOwnProperty('errors')) {
                 alert(response.errors[0].message);
             } else if (response.hasOwnProperty('data')) {
                 console.log(response.data);
             }
         },
-        error: function(response) {
+        error: function error(response) {
             if (response.hasOwnProperty('errors')) {
                 alert(response.errors[0].message);
             }
@@ -17365,19 +17357,9 @@ $('#create-button').on('click', (event) => {
 });
 
 // Login query
-const loginUser = `
-    mutation loginUserQuery($input: LoginUserInput!) {
-        loginUser(input: $input) {
-            token
-            user {
-                id
-                username
-                name
-            }
-        }
-    }`;
+var loginUser = "\n    mutation loginUserQuery($input: LoginUserInput!) {\n        loginUser(input: $input) {\n            token\n            user {\n                id\n                username\n                name\n            }\n        }\n    }";
 
-let loginData = (username, password) => {
+var loginData = function loginData(username, password) {
     return {
         "input": {
             "username": username,
@@ -17386,7 +17368,7 @@ let loginData = (username, password) => {
     };
 };
 
-let processLogin = (user, token) => {
+var processLogin = function processLogin(user, token) {
     // Set session cookie
     Cookies.set('userId', user.id);
     Cookies.set('userName', user.name);
@@ -17399,15 +17381,15 @@ let processLogin = (user, token) => {
     window.location = createUrl();
 };
 
-let createUrl = () => {
+var createUrl = function createUrl() {
     return window.location.href.replace('/login.html', '/create.html');
 };
 
-$('#login-button').on('click', (event) => {
+$('#login-button').on('click', function (event) {
     // Don't actually submit form
     event.preventDefault();
 
-    let username = $('input[name="username"]').val(),
+    var username = $('input[name="username"]').val(),
         password = $('input[name="password"]').val(),
         data = loginData(username, password);
 
@@ -17419,13 +17401,13 @@ $('#login-button').on('click', (event) => {
             variables: data
         }),
         contentType: 'application/json',
-        success: function(response) {
+        success: function success(response) {
             if (response.hasOwnProperty('errors')) {
                 alert(response.errors[0].message);
             } else if (response.hasOwnProperty('data')) {
-                let loginUser$$1 = response.data.loginUser,
-                    token = loginUser$$1.token,
-                    user = loginUser$$1.user;
+                var _loginUser = response.data.loginUser,
+                    token = _loginUser.token,
+                    user = _loginUser.user;
                 processLogin(user, token);
             }
         }
@@ -17434,3 +17416,5 @@ $('#login-button').on('click', (event) => {
 
 // Test cookies code.
 Cookies.set('test', 'cookies work');
+
+//# sourceMappingURL=app.js.map

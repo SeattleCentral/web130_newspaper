@@ -1,8 +1,9 @@
-import { getCampusArticles } from './queries';
+import { getCategoryArticles } from './queries';
 import { displayArticles } from './display';
 
 
 if (js_page == 'campus_page') {
+
     let campusFilter = {
         "where": {
             "category": {
@@ -10,11 +11,12 @@ if (js_page == 'campus_page') {
             }
         }
     };
+
     $.ajax({
         type: "POST",
         url: "https://us-west-2.api.scaphold.io/graphql/sct-course",
         data: JSON.stringify({
-            query: getCampusArticles,
+            query: getCategoryArticles,
             variables: campusFilter
         }),
         contentType: 'application/json',
@@ -26,10 +28,8 @@ if (js_page == 'campus_page') {
                     articles.push(article.node);
                 }
             }
-            
+
             displayArticles(articles);
         }
     });
 }
-
-
