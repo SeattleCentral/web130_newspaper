@@ -17192,23 +17192,73 @@ module.exports = _dereq_(23);
 	return init(function () {});
 }));
 
-// All articles
-var getAllArticles = "\n    query getAllArticles {\n        viewer {\n            allArticles{\n                edges {\n                    node {\n                        id\n                        title\n                        content\n                        category\n                        author {\n                            id\n                            name\n                        }\n                    }\n                }\n            }\n        }\n    }";
+// List of all articles
+const getAllArticles = `query getAllArticles {
+    viewer {
+        allArticles{
+            edges {
+                node {
+                    id
+                    createdAt
+                    title
+                    content
+                    category
+                    author {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+    }
+}`;
 
-// Get category articles
-var getCategoryArticles = "\n    query getCategoryArticles($where: ArticleWhereArgs) {\n        viewer {\n            allArticles(where: $where) {\n                edges {\n                    node {\n                        id\n                        title\n                        content\n                        category\n                        createdAt\n                        author {\n                            id\n                            name\n                        }\n                    }\n                }\n            }\n        }\n    }";
+const getCategoryArticles = `
+    query getCategoryArticles($where: ArticleWhereArgs) {
+        viewer {
+            allArticles(where: $where) {
+                edges {
+                    node {
+                        id
+                        title
+                        content
+                        category
+                        createdAt
+                        author {
+                            id
+                            name
+                        }
+                    }
+                }
+            }
+        }
+    }`;
+    
+const createArticle = `
+    mutation createArticleQuery($input: CreateArticleInput!) {
+        createArticle(input: $input) {
+            changedArticle {
+                id
+                modifiedAt
+                title
+                content
+                category
+                author {
+                    id
+                    name
+                }
+            }
+        }
+    }`;
 
-// Create new article
-var createArticle = "\n    mutation createArticleQuery($input: CreateArticleInput!) {\n        createArticle(input: $input) {\n            changedArticle {\n                id\n                modifiedAt\n                title\n                content\n                category\n                author {\n                    id\n                    name\n                }\n            }\n        }\n    }";
+const MAX_ARTICLES = 5;
 
-var MAX_ARTICLES = 5;
-
-var displayArticles = function displayArticles(articles) {
-    var numberToDisplay = Math.min(articles.length, MAX_ARTICLES),
-        i = void 0;
+let displayArticles = (articles) => {
+    let numberToDisplay = Math.min(articles.length, MAX_ARTICLES),
+        i;
     for (i = 0; i < numberToDisplay; i++) {
-        var article = articles[i],
-            $elem = $('#article-' + (i + 1));
+        let article = articles[i],
+            $elem = $('#article-'+ (i + 1));
         $elem.find('h1, h2').html(article.title);
         $elem.find('article').html(article.content);
     }
@@ -17222,44 +17272,23 @@ if (js_page == 'home_page') {
             query: getAllArticles
         }),
         contentType: 'application/json',
-        success: function success(response) {
-            var articles = [];
+        success: function(response) {
+            let articles = [];
             if (response.hasOwnProperty('data')) {
-                var articleEdges = response.data.viewer.allArticles.edges;
-                var _iteratorNormalCompletion = true;
-                var _didIteratorError = false;
-                var _iteratorError = undefined;
-
-                try {
-                    for (var _iterator = articleEdges[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                        var article = _step.value;
-
-                        articles.push(article.node);
-                    }
-                } catch (err) {
-                    _didIteratorError = true;
-                    _iteratorError = err;
-                } finally {
-                    try {
-                        if (!_iteratorNormalCompletion && _iterator.return) {
-                            _iterator.return();
-                        }
-                    } finally {
-                        if (_didIteratorError) {
-                            throw _iteratorError;
-                        }
-                    }
+                let articleEdges = response.data.viewer.allArticles.edges;
+                for (var article of articleEdges) {
+                    articles.push(article.node);
                 }
             }
-
+            
             displayArticles(articles);
         }
     });
 }
 
 if (js_page == 'campus_page') {
-
-    var campusFilter = {
+    
+    let campusFilter = {
         "where": {
             "category": {
                 "eq": "Campus"
@@ -17275,42 +17304,85 @@ if (js_page == 'campus_page') {
             variables: campusFilter
         }),
         contentType: 'application/json',
-        success: function success(response) {
-            var articles = [];
+        success: function(response) {
+            let articles = [];
             if (response.hasOwnProperty('data')) {
-                var articleEdges = response.data.viewer.allArticles.edges;
-                var _iteratorNormalCompletion = true;
-                var _didIteratorError = false;
-                var _iteratorError = undefined;
-
-                try {
-                    for (var _iterator = articleEdges[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                        var article = _step.value;
-
-                        articles.push(article.node);
-                    }
-                } catch (err) {
-                    _didIteratorError = true;
-                    _iteratorError = err;
-                } finally {
-                    try {
-                        if (!_iteratorNormalCompletion && _iterator.return) {
-                            _iterator.return();
-                        }
-                    } finally {
-                        if (_didIteratorError) {
-                            throw _iteratorError;
-                        }
-                    }
+                let articleEdges = response.data.viewer.allArticles.edges;
+                for (var article of articleEdges) {
+                    articles.push(article.node);
                 }
             }
-
+            
             displayArticles(articles);
         }
     });
 }
 
-var createData = function createData(title, category, content) {
+if (js_page == 'community_page') {
+    
+    let communityFilter = {
+        "where": {
+            "category": {
+                "eq": "Community"
+            }
+        }
+    };
+    
+    $.ajax({
+        type: "POST",
+        url: "https://us-west-2.api.scaphold.io/graphql/sct-course",
+        data: JSON.stringify({
+            query: getCategoryArticles,
+            variables: communityFilter
+        }),
+        contentType: 'application/json',
+        success: function(response) {
+            let articles = [];
+            if (response.hasOwnProperty('data')) {
+                let articleEdges = response.data.viewer.allArticles.edges;
+                for (var article of articleEdges) {
+                    articles.push(article.node);
+                }
+            }
+            
+            displayArticles(articles);
+        }
+    });
+}
+
+if (js_page == 'opinion_page') {
+    
+    let opinionFilter = {
+        "where": {
+            "category": {
+                "eq": "Opinion"
+            }
+        }
+    };
+    
+    $.ajax({
+        type: "POST",
+        url: "https://us-west-2.api.scaphold.io/graphql/sct-course",
+        data: JSON.stringify({
+            query: getCategoryArticles,
+            variables: opinionFilter
+        }),
+        contentType: 'application/json',
+        success: function(response) {
+            let articles = [];
+            if (response.hasOwnProperty('data')) {
+                let articleEdges = response.data.viewer.allArticles.edges;
+                for (var article of articleEdges) {
+                    articles.push(article.node);
+                }
+            }
+            
+            displayArticles(articles);
+        }
+    });
+}
+
+let createInput = (title, category, content) => {
     return {
         "input": {
             "authorId": Cookies.get('userId'),
@@ -17321,15 +17393,14 @@ var createData = function createData(title, category, content) {
     };
 };
 
-$('#create-button').on('click', function (event) {
-    // Don't actually submit form
+$('#create-button').on('click', (event) => {
     event.preventDefault();
-
-    var title = $('input[name="title"]').val(),
-        category = $('[name="category"]').val(),
-        content = $('[name="content"]').val(),
-        data = createData(title, category, content);
-
+    
+    let title = $('#title').val(),
+        category = $('#category').val(),
+        content = $('#content').val(),
+        data = createInput(title, category, content);
+        
     $.ajax({
         type: "POST",
         url: "https://us-west-2.api.scaphold.io/graphql/sct-course",
@@ -17341,14 +17412,14 @@ $('#create-button').on('click', function (event) {
         headers: {
             'Authorization': 'Bearer ' + Cookies.get('token')
         },
-        success: function success(response) {
-            if (response.hasOwnProperty('errors')) {
-                alert(response.errors[0].message);
-            } else if (response.hasOwnProperty('data')) {
-                console.log(response.data);
+        success: function(response) {
+            if (response.hasOwnProperty('data')) {
+                alert('You created a new article!');
+                $('form')[0].reset();
             }
         },
-        error: function error(response) {
+        error: function(xhr, status, response) {
+            console.log(response);
             if (response.hasOwnProperty('errors')) {
                 alert(response.errors[0].message);
             }
@@ -17357,9 +17428,19 @@ $('#create-button').on('click', function (event) {
 });
 
 // Login query
-var loginUser = "\n    mutation loginUserQuery($input: LoginUserInput!) {\n        loginUser(input: $input) {\n            token\n            user {\n                id\n                username\n                name\n            }\n        }\n    }";
+const loginUser = `
+    mutation loginUserQuery($input: LoginUserInput!) {
+        loginUser(input: $input) {
+            token
+            user {
+                id
+                username
+                name
+            }
+        }
+    }`;
 
-var loginData = function loginData(username, password) {
+let loginInput = (username, password) => {
     return {
         "input": {
             "username": username,
@@ -17368,31 +17449,24 @@ var loginData = function loginData(username, password) {
     };
 };
 
-var processLogin = function processLogin(user, token) {
-    // Set session cookie
+let processLogin = (user, token) => {
     Cookies.set('userId', user.id);
-    Cookies.set('userName', user.name);
     Cookies.set('token', token);
-    // For debugging purposes
-    console.log('userId - ' + user.id);
-    console.log('userName - ' + user.name);
-    console.log('token - ' + token);
-
-    window.location = createUrl();
+    
+    window.location = createArticleUrl();
 };
 
-var createUrl = function createUrl() {
+let createArticleUrl = () => {
     return window.location.href.replace('/login.html', '/create.html');
 };
 
-$('#login-button').on('click', function (event) {
-    // Don't actually submit form
+$('#login-button').on('click', (event) => {
     event.preventDefault();
-
-    var username = $('input[name="username"]').val(),
-        password = $('input[name="password"]').val(),
-        data = loginData(username, password);
-
+    
+    let username = $('#username').val(),
+        password = $('#password').val(),
+        data = loginInput(username, password);
+        
     $.ajax({
         type: "POST",
         url: "https://us-west-2.api.scaphold.io/graphql/sct-course",
@@ -17401,20 +17475,17 @@ $('#login-button').on('click', function (event) {
             variables: data
         }),
         contentType: 'application/json',
-        success: function success(response) {
+        success: function(response) {
             if (response.hasOwnProperty('errors')) {
                 alert(response.errors[0].message);
             } else if (response.hasOwnProperty('data')) {
-                var _loginUser = response.data.loginUser,
-                    token = _loginUser.token,
-                    user = _loginUser.user;
+                let loginUser$$1 = response.data.loginUser,
+                    token = loginUser$$1.token,
+                    user = loginUser$$1.user;
                 processLogin(user, token);
             }
         }
     });
 });
 
-// Test cookies code.
-Cookies.set('test', 'cookies work');
-
-//# sourceMappingURL=app.js.map
+// To Do

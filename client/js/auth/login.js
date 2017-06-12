@@ -1,6 +1,6 @@
 import { loginUser } from './queries';
 
-let loginData = (username, password) => {
+let loginInput = (username, password) => {
     return {
         "input": {
             "username": username,
@@ -10,30 +10,23 @@ let loginData = (username, password) => {
 };
 
 let processLogin = (user, token) => {
-    // Set session cookie
     Cookies.set('userId', user.id);
-    Cookies.set('userName', user.name);
     Cookies.set('token', token);
-    // For debugging purposes
-    console.log('userId - ' + user.id);
-    console.log('userName - ' + user.name);
-    console.log('token - ' + token);
-
-    window.location = createUrl();
+    
+    window.location = createArticleUrl();
 };
 
-let createUrl = () => {
+let createArticleUrl = () => {
     return window.location.href.replace('/login.html', '/create.html');
 };
 
 $('#login-button').on('click', (event) => {
-    // Don't actually submit form
     event.preventDefault();
-
-    let username = $('input[name="username"]').val(),
-        password = $('input[name="password"]').val(),
-        data = loginData(username, password);
-
+    
+    let username = $('#username').val(),
+        password = $('#password').val(),
+        data = loginInput(username, password);
+        
     $.ajax({
         type: "POST",
         url: "https://us-west-2.api.scaphold.io/graphql/sct-course",

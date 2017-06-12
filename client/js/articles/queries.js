@@ -1,25 +1,24 @@
-// All articles
-export const getAllArticles = `
-    query getAllArticles {
-        viewer {
-            allArticles{
-                edges {
-                    node {
+// List of all articles
+export const getAllArticles = `query getAllArticles {
+    viewer {
+        allArticles{
+            edges {
+                node {
+                    id
+                    createdAt
+                    title
+                    content
+                    category
+                    author {
                         id
-                        title
-                        content
-                        category
-                        author {
-                            id
-                            name
-                        }
+                        name
                     }
                 }
             }
         }
-    }`;
+    }
+}`;
 
-// Get category articles
 export const getCategoryArticles = `
     query getCategoryArticles($where: ArticleWhereArgs) {
         viewer {
@@ -40,8 +39,7 @@ export const getCategoryArticles = `
             }
         }
     }`;
-
-// Create new article
+    
 export const createArticle = `
     mutation createArticleQuery($input: CreateArticleInput!) {
         createArticle(input: $input) {

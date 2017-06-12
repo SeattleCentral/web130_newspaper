@@ -2,22 +2,22 @@ import { getCategoryArticles } from './queries';
 import { displayArticles } from './display';
 
 
-if (js_page == 'campus_page') {
+if (js_page == 'community_page') {
     
-    let campusFilter = {
+    let communityFilter = {
         "where": {
             "category": {
-                "eq": "Campus"
+                "eq": "Community"
             }
         }
     };
-
+    
     $.ajax({
         type: "POST",
         url: "https://us-west-2.api.scaphold.io/graphql/sct-course",
         data: JSON.stringify({
             query: getCategoryArticles,
-            variables: campusFilter
+            variables: communityFilter
         }),
         contentType: 'application/json',
         success: function(response) {

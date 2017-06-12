@@ -1,6 +1,6 @@
 import { createArticle } from './queries';
 
-let createData = (title, category, content) => {
+let createInput = (title, category, content) => {
     return {
         "input": {
             "authorId": Cookies.get('userId'),
@@ -11,16 +11,14 @@ let createData = (title, category, content) => {
     };
 };
 
-
 $('#create-button').on('click', (event) => {
-    // Don't actually submit form
     event.preventDefault();
-
-    let title = $('input[name="title"]').val(),
-        category = $('[name="category"]').val(),
-        content = $('[name="content"]').val(),
-        data = createData(title, category, content);
-
+    
+    let title = $('#title').val(),
+        category = $('#category').val(),
+        content = $('#content').val(),
+        data = createInput(title, category, content);
+        
     $.ajax({
         type: "POST",
         url: "https://us-west-2.api.scaphold.io/graphql/sct-course",
@@ -33,13 +31,13 @@ $('#create-button').on('click', (event) => {
             'Authorization': 'Bearer ' + Cookies.get('token')
         },
         success: function(response) {
-            if (response.hasOwnProperty('errors')) {
-                alert(response.errors[0].message);
-            } else if (response.hasOwnProperty('data')) {
-                console.log(response.data);
+            if (response.hasOwnProperty('data')) {
+                alert('You created a new article!');
+                $('form')[0].reset();
             }
         },
-        error: function(response) {
+        error: function(xhr, status, response) {
+            console.log(response);
             if (response.hasOwnProperty('errors')) {
                 alert(response.errors[0].message);
             }
